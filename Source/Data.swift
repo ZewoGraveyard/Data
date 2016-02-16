@@ -140,15 +140,19 @@ extension Data: StringLiteralConvertible {
 }
 
 extension Data {
+	public func hexString(delimiter delimiter: Int = 0) -> String {
+		var string = ""
+		for (index, value) in enumerate() {
+			if delimiter != 0 && index > 0 && index % delimiter == 0 {
+				string += " "
+			}
+			string += (value < 16 ? "0" : "") + String(value, radix: 16)
+		}
+		return string
+	}
+	
     public var hexDescription: String {
-        var string = ""
-        for (index, value) in self.enumerate() {
-            if index % 2 == 0 && index > 0 {
-                string += " "
-            }
-            string += (value < 16 ? "0" : "") + String(value, radix: 16)
-        }
-        return string
+		return hexString(delimiter: 2)
     }
 }
 
