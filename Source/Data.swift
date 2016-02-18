@@ -73,17 +73,8 @@ extension Data {
 }
 
 extension Data: MutableCollectionType {
-    public func generate() -> AnyGenerator<Byte> {
-        var index = 0
-        return AnyGenerator {
-            if index < 0 || index >= self.count {
-                return nil
-            }
-
-            let byte = self.bytes[index]
-            index += 1
-            return byte
-        }
+    public func generate() -> IndexingGenerator<[Byte]> {
+        return bytes.generate()
     }
 
     public var startIndex: Int {
