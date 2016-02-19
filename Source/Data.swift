@@ -110,6 +110,12 @@ extension Data: MutableCollectionType {
     }
 }
 
+extension Data: Equatable {}
+
+public func ==(lhs: Data, rhs: Data) -> Bool {
+    return lhs.bytes == rhs.bytes
+}
+
 extension Data: ArrayLiteralConvertible {
     public init(arrayLiteral bytes: Byte...) {
         self.init(bytes: bytes)
@@ -194,7 +200,6 @@ extension Data {
     public static func bufferWithSize(size: Int) -> Data {
         return Data([UInt8](count: size, repeatedValue: 0))
     }
-
 
     public mutating func replaceBytesInRange<C: CollectionType where C.Generator.Element == Byte>(subRange: Range<Int>, with newBytes: C) {
         bytes.replaceRange(subRange, with: newBytes)
