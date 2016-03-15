@@ -314,6 +314,6 @@ extension String: DataConvertible {
     }
     
     public var data: Data {
-        return Data(bytes: [Byte](utf8))
+        return Data(string: self)
     }
 }
