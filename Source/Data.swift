@@ -37,10 +37,13 @@ public protocol DataConvertible {
 }
 
 public struct Data {
-    private var bytes: [Byte]
+    public var bytes: [Byte]
 
     public init(bytes: [Byte]) {
         self.bytes = bytes
+    }
+    public init(string: String) {
+        self.init(bytes: [Byte](string.utf8))
     }
 }
 
@@ -124,15 +127,15 @@ extension Data: ArrayLiteralConvertible {
 
 extension Data: StringLiteralConvertible {
     public init(stringLiteral string: String) {
-        self.init(bytes: [Byte](string.utf8))
+        self.init(string: string)
     }
 
     public init(extendedGraphemeClusterLiteral string: String){
-        self.init(bytes: [Byte](string.utf8))
+        self.init(string: string)
     }
 
     public init(unicodeScalarLiteral string: String){
-        self.init(bytes: [Byte](string.utf8))
+        self.init(string: string)
     }
 }
 
