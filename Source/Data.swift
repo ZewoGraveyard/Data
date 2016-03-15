@@ -47,7 +47,7 @@ public struct Data {
     }
 }
 
-public struct DataError: ErrorType, CustomStringConvertible {
+public struct DataError: ErrorProtocol, CustomStringConvertible {
     public let description: String
 }
 
@@ -57,7 +57,7 @@ extension Data {
     }
     
     public init<T: ByteType>(pointer: UnsafePointer<T>, length: Int) {
-        var bytes: [UInt8] = [UInt8](count: length, repeatedValue: 0)
+        var bytes: [UInt8] = [UInt8](repeating: 0, count: length)
         memcpy(&bytes, pointer, length)
         self.bytes = bytes
     }
@@ -66,18 +66,18 @@ extension Data {
         self.bytes = convertible.data.bytes
     }
 
-    public init<S: SequenceType where S.Generator.Element == Byte>(_ bytes: S) {
+    public init<S: Sequence where S.Iterator.Element == Byte>(_ bytes: S) {
         self.bytes = [Byte](bytes)
     }
 
-    public init<C: CollectionType where C.Generator.Element == Byte>(_ bytes: C) {
+    public init<C: Collection where C.Iterator.Element == Byte>(_ bytes: C) {
         self.bytes = [Byte](bytes)
     }
 }
 
-extension Data: MutableCollectionType {
-    public func generate() -> IndexingGenerator<[Byte]> {
-        return bytes.generate()
+extension Data: MutableCollection {
+    public func makeIterator() -> IndexingIterator<[Byte]> {
+        return bytes.makeIterator()
     }
 
     public var startIndex: Int {
@@ -142,7 +142,7 @@ extension Data: StringLiteralConvertible {
 extension Data {
 	public func hexString(delimiter delimiter: Int = 0) -> String {
 		var string = ""
-		for (index, value) in enumerate() {
+		for (index, value) in enumerated() {
 			if delimiter != 0 && index > 0 && index % delimiter == 0 {
 				string += " "
 			}
@@ -181,7 +181,7 @@ extension Data: NilLiteralConvertible {
 extension Data {
     internal func convert<T>() -> T {
         return bytes.withUnsafeBufferPointer {
-            return UnsafePointer<T>($0.baseAddress).memory
+            return UnsafePointer<T>($0.baseAddress).pointee
         }
     }
 
@@ -201,11 +201,11 @@ extension Data {
     }
 
     public static func bufferWithSize(size: Int) -> Data {
-        return Data([UInt8](count: size, repeatedValue: 0))
+        return Data([UInt8](repeating: 0, count: size))
     }
 
-    public mutating func replaceBytesInRange<C: CollectionType where C.Generator.Element == Byte>(subRange: Range<Int>, with newBytes: C) {
-        bytes.replaceRange(subRange, with: newBytes)
+    public mutating func replaceBytesInRange<C: Collection where C.Iterator.Element == Byte>(subRange: Range<Int>, with newBytes: C) {
+        bytes.replaceSubrange(subRange, with: newBytes)
     }
 
     public mutating func reserveCapacity(minimumCapacity: Int) {
@@ -216,20 +216,20 @@ extension Data {
         bytes.append(newByte)
     }
 
-    public mutating func appendBytes<S: SequenceType where S.Generator.Element == Byte>(newBytes: S) {
-        bytes.appendContentsOf(newBytes)
+    public mutating func appendBytes<S: Sequence where S.Iterator.Element == Byte>(newBytes: S) {
+        bytes.append(contentsOf: newBytes)
     }
 
     public mutating func insertByte(newByte: Byte, atIndex i: Int) {
-        bytes.insert(newByte, atIndex: i)
+        bytes.insert(newByte, at: i)
     }
 
-    public mutating func insertBytes<S : CollectionType where S.Generator.Element == Byte>(newBytes: S, at i: Int) {
-        bytes.insertContentsOf(newBytes, at: i)
+    public mutating func insertBytes<S : Collection where S.Iterator.Element == Byte>(newBytes: S, at i: Int) {
+        bytes.insert(contentsOf: newBytes, at: i)
     }
 
     public mutating func removeByteAtIndex(index: Int) -> Byte {
-        return bytes.removeAtIndex(index)
+        return bytes.remove(at: index)
     }
 
     public mutating func removeFirstByte() -> Byte {
@@ -241,15 +241,15 @@ extension Data {
     }
 
     public mutating func removeBytesInRange(subRange: Range<Int>) {
-        bytes.removeRange(subRange)
+        bytes.removeSubrange(subRange)
     }
 
     public mutating func removeAllBytes(keepCapacity keepCapacity: Bool = true) {
-        bytes.removeAll(keepCapacity: keepCapacity)
+        bytes.removeAll(keepingCapacity: keepCapacity)
     }
 
     public init(count: Int, repeatedValue: Byte) {
-        self.init(bytes: [Byte](count: count, repeatedValue: repeatedValue))
+        self.init(bytes: [Byte](repeating: repeatedValue ,count: count))
     }
 
     public var capacity: Int {
@@ -265,15 +265,15 @@ extension Data {
     }
 }
 
-public func +=<S : SequenceType where S.Generator.Element == Byte>(inout lhs: Data, rhs: S) {
+public func +=<S : Sequence where S.Iterator.Element == Byte>(lhs: inout Data, rhs: S) {
     return lhs.bytes += rhs
 }
 
-public func +=(inout lhs: Data, rhs: Data) {
+public func +=(lhs: inout Data, rhs: Data) {
     return lhs.bytes += rhs.bytes
 }
 
-public func +=(inout lhs: Data, rhs: DataConvertible) {
+public func +=(lhs: inout Data, rhs: DataConvertible) {
     return lhs += rhs.data
 }
 
@@ -294,18 +294,18 @@ public func +(lhs: DataConvertible, rhs: Data) -> Data {
 
 extension String: DataConvertible {
     public init(data: Data) throws {
-        struct Error: ErrorType {}
+        struct Error: ErrorProtocol {}
         var string = ""
         var decoder = UTF8()
-        var generator = data.generate()
+        var generator = data.makeIterator()
         var finished = false
 
         while !finished {
             let decodingResult = decoder.decode(&generator)
             switch decodingResult {
-            case .Result(let char): string.append(char)
-            case .EmptyInput: finished = true
-            case .Error:
+            case .scalarValue(let char): string.append(char)
+            case .emptyInput: finished = true
+            case .error:
                 throw Error()
             }
         }
