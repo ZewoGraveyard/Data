@@ -51,7 +51,7 @@ extension Data {
     }
 
     public init(_ convertible: DataConvertible) {
-        self.bytes = convertible.xData.bytes
+        self.bytes = convertible.data.bytes
     }
 
     public init<S: Sequence where S.Iterator.Element == Byte>(_ bytes: S) {
@@ -146,7 +146,7 @@ extension Data {
 
 extension Data: CustomStringConvertible {
     public var description: String {
-        if let string = try? String(xData: self) {
+        if let string = try? String(data: self) {
             return string
         }
 
@@ -262,7 +262,7 @@ public func +=(lhs: inout Data, rhs: Data) {
 }
 
 public func +=(lhs: inout Data, rhs: DataConvertible) {
-    return lhs += rhs.xData
+    return lhs += rhs.data
 }
 
 @warn_unused_result
@@ -272,20 +272,20 @@ public func +(lhs: Data, rhs: Data) -> Data {
 
 @warn_unused_result
 public func +(lhs: Data, rhs: DataConvertible) -> Data {
-    return lhs + rhs.xData
+    return lhs + rhs.data
 }
 
 @warn_unused_result
 public func +(lhs: DataConvertible, rhs: Data) -> Data {
-    return lhs.xData + rhs
+    return lhs.data + rhs
 }
 
 extension String: DataConvertible {
-    public init(xData: Data) throws {
+    public init(data: Data) throws {
         struct Error: ErrorProtocol {}
         var string = ""
         var decoder = UTF8()
-        var generator = xData.makeIterator()
+        var generator = data.makeIterator()
         var finished = false
 
         while !finished {
@@ -301,7 +301,7 @@ extension String: DataConvertible {
         self.init(string)
     }
 
-    public var xData: Data {
+    public var data: Data {
         return Data(string: self)
     }
 }
