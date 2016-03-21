@@ -22,26 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
+@_exported import C7
 @_exported import System
-
-public typealias Byte = UInt8
 
 public protocol ByteType {}
 extension UInt8: ByteType {}
 extension Int8: ByteType {}
 
-public protocol DataConvertible {
-    var data: Data { get }
-    init(data: Data) throws
-}
-
-public struct Data {
-    public var bytes: [Byte]
-
-    public init(bytes: [Byte]) {
-        self.bytes = bytes
-    }
+extension Data {
     public init(string: String) {
         self.init(bytes: [Byte](string.utf8))
     }
@@ -55,7 +43,7 @@ extension Data {
     public init() {
         self.bytes = []
     }
-    
+
     public init<T: ByteType>(pointer: UnsafePointer<T>, length: Int) {
         var bytes: [UInt8] = [UInt8](repeating: 0, count: length)
         memcpy(&bytes, pointer, length)
@@ -63,7 +51,7 @@ extension Data {
     }
 
     public init(_ convertible: DataConvertible) {
-        self.bytes = convertible.data.bytes
+        self.bytes = convertible.xData.bytes
     }
 
     public init<S: Sequence where S.Iterator.Element == Byte>(_ bytes: S) {
@@ -150,7 +138,7 @@ extension Data {
 		}
 		return string
 	}
-	
+
     public var hexDescription: String {
 		return hexString(delimiter: 2)
     }
@@ -158,7 +146,7 @@ extension Data {
 
 extension Data: CustomStringConvertible {
     public var description: String {
-        if let string = try? String(data: self) {
+        if let string = try? String(xData: self) {
             return string
         }
 
@@ -274,7 +262,7 @@ public func +=(lhs: inout Data, rhs: Data) {
 }
 
 public func +=(lhs: inout Data, rhs: DataConvertible) {
-    return lhs += rhs.data
+    return lhs += rhs.xData
 }
 
 @warn_unused_result
@@ -284,20 +272,20 @@ public func +(lhs: Data, rhs: Data) -> Data {
 
 @warn_unused_result
 public func +(lhs: Data, rhs: DataConvertible) -> Data {
-    return lhs + rhs.data
+    return lhs + rhs.xData
 }
 
 @warn_unused_result
 public func +(lhs: DataConvertible, rhs: Data) -> Data {
-    return lhs.data + rhs
+    return lhs.xData + rhs
 }
 
 extension String: DataConvertible {
-    public init(data: Data) throws {
+    public init(xData: Data) throws {
         struct Error: ErrorProtocol {}
         var string = ""
         var decoder = UTF8()
-        var generator = data.makeIterator()
+        var generator = xData.makeIterator()
         var finished = false
 
         while !finished {
@@ -312,8 +300,8 @@ extension String: DataConvertible {
 
         self.init(string)
     }
-    
-    public var data: Data {
+
+    public var xData: Data {
         return Data(string: self)
     }
 }
