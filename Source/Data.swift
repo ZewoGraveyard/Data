@@ -23,7 +23,7 @@
 // SOFTWARE.
 
 @_exported import C7
-@_exported import System
+@_exported import OS
 
 public protocol ByteType {}
 extension UInt8: ByteType {}
