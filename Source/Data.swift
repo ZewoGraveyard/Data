@@ -31,7 +31,7 @@ extension Int8: ByteType {}
 
 extension Data {
     public init(string: String) {
-        self.init(bytes: [Byte](string.utf8))
+        self.init([Byte](string.utf8))
     }
 }
 
@@ -69,11 +69,11 @@ extension Data: MutableCollection {
     }
 
     public var startIndex: Int {
-        return 0
+        return bytes.startIndex
     }
 
     public var endIndex: Int {
-        return count
+        return bytes.endIndex
     }
 
     public var count: Int {
@@ -85,8 +85,8 @@ extension Data: MutableCollection {
             return bytes[index]
         }
 
-        set {
-            bytes[index] = newValue
+        set(byte) {
+            bytes[index] = byte
         }
     }
 
@@ -95,8 +95,8 @@ extension Data: MutableCollection {
             return Data(bytes[bounds])
         }
 
-        set {
-            bytes[bounds] = ArraySlice<Byte>(newValue.bytes)
+        set(data) {
+            bytes[bounds] = ArraySlice<Byte>(data.bytes)
         }
     }
 }
@@ -109,7 +109,7 @@ public func ==(lhs: Data, rhs: Data) -> Bool {
 
 extension Data: ArrayLiteralConvertible {
     public init(arrayLiteral bytes: Byte...) {
-        self.init(bytes: bytes)
+        self.init(bytes)
     }
 }
 
@@ -162,7 +162,7 @@ extension Data: CustomDebugStringConvertible {
 
 extension Data: NilLiteralConvertible {
     public init(nilLiteral: Void) {
-        self.init(bytes: [])
+        self.init([])
     }
 }
 
@@ -237,7 +237,7 @@ extension Data {
     }
 
     public init(count: Int, repeatedValue: Byte) {
-        self.init(bytes: [Byte](repeating: repeatedValue ,count: count))
+        self.init([Byte](repeating: repeatedValue ,count: count))
     }
 
     public var capacity: Int {
@@ -267,7 +267,7 @@ public func +=(lhs: inout Data, rhs: DataConvertible) {
 
 @warn_unused_result
 public func +(lhs: Data, rhs: Data) -> Data {
-    return Data(bytes: lhs.bytes + rhs.bytes)
+    return Data(lhs.bytes + rhs.bytes)
 }
 
 @warn_unused_result
