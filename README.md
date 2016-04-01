@@ -8,7 +8,7 @@ Data
 
 ## Overview
 
-Binary data representation
+Extensions for [C7](https://github.com/SwiftX/c7)'s binary data representation.
 
 ## Usage
 
@@ -28,5 +28,5 @@ Join us on [Slack](http://slack.zewo.io).
 License
 -------
 
-**Swift-Crate.io** is released under the MIT license. See LICENSE for details.
+**Data** is released under the MIT license. See LICENSE for details.
 
