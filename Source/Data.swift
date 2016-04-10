@@ -54,22 +54,6 @@ extension Data {
     }
 }
 
-extension Data: CustomStringConvertible {
-    public var description: String {
-        if let string = try? String(data: self) {
-            return string
-        }
-
-        return debugDescription
-    }
-}
-
-extension Data: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        return hexDescription
-    }
-}
-
 extension Data {
     internal func convert<T>() -> T {
         return bytes.withUnsafeBufferPointer {
