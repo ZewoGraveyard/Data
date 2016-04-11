@@ -38,23 +38,6 @@ extension Data {
 }
 
 extension Data {
-	public func hexString(delimiter delimiter: Int = 0) -> String {
-		var string = ""
-		for (index, value) in enumerated() {
-			if delimiter != 0 && index > 0 && index % delimiter == 0 {
-				string += " "
-			}
-			string += (value < 16 ? "0" : "") + String(value, radix: 16)
-		}
-		return string
-	}
-
-    public var hexDescription: String {
-		return hexString(delimiter: 2)
-    }
-}
-
-extension Data {
     internal func convert<T>() -> T {
         return bytes.withUnsafeBufferPointer {
             return UnsafePointer<T>($0.baseAddress).pointee
